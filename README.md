@@ -30,11 +30,11 @@ export PATH=$ANT_HOME/bin:$PATH
 ```
 
 ## Contents
-* **[1. Deploying the Sample Application to Tomcat](#1-Deploying the Sample Application to Tomcat)**
+* **[1.Deploying the Sample Application to Tomcat](#1-Deploying-the-Sample-Application-to-Tomcat)**
 
-* **[2. Downloading AOT Templates](#2-Downloading AOT Templates)**
+* **[2.Downloading AOT Templates](#2-Downloading-AOT-Templates)**
    
-* **[3. Packaging and Native Build](#3-Packaging and Native Build)**
+* **[3.Packaging and Native Build](#3-Packaging-and-Native-Build)**
 
 ## 1. Deploying the Sample Application to Tomcat  
 Spring Frameworkを使用したWebアプリケーションを作成して、warファイルとしてTomcatにデプロイし、正常稼働を確認します。のちにこのアプリケーションをnative image化します。
