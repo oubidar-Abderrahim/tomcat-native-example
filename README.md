@@ -1,21 +1,20 @@
-# Tomcatサーバーnative image化デモ
-このデモではTomcatサーバをnative image化する手順を示しています。
+# Run Tomcat Server As Native Image
 
 ## Overview  
-* このデモはTomcatサーバおよびサーバ上で稼働するアプリケーションをnative image化する手順を示します。  
-* 以下のTomcatオフィシャルサイトの記事https://tomcat.apache.org/tomcat-11.0-doc/graal.html を参考にしています。  
-        1. Tomcatサーバおよび稼働アプリケーションの依存関係を含む単一実行可能なJARファイルを生成します。  
-        2. そのJARファイルに対して、GraalVMが提供するエージェントツールを使用してnative imageを生成するためのメタデータを生成します。  
-        3. GraalVMが提供するネイティブビルドツールを使用してnative imageを生成します。  
-* 本デモにおけるサンプルアプリケーションはSpring Framework6.xに準拠しています。
+* This demo provides steps to run Tomcat server along with the web applications in terms of GraalVM native image.  
+* The steps reference Tomcat documentation https://tomcat.apache.org/tomcat-11.0-doc/graal.html  
+        1. Generate a single executable JAR file, including dependencies for Tomcat server and running applications.  
+        2. Generate metadata for native image creation using the agent tool provided by GraalVM for the JAR file.  
+        3. Generate the native image using the native build tool provided by GraalVM.  
+* The sample application in this demo implements Spring Framework 6.x.
 
-## デモ環境
+## Demo Environment
 * [Tomcat 10.0.27](https://tomcat.apache.org/download-10.cgi)
 * [GraalVM for JDK 21](https://www.oracle.com/jp/java/technologies/downloads/#graalvmjava21)
 * [Apache Maven 3.6.3](https://maven.apache.org/download.cgi)
 * [Apache Ant 1.10.14](https://ant.apache.org/bindownload.cgi)
 
-> **NOTE:** 上記ソフトウェアはすべてインストール済みという前提でデモ手順を記載します。Linux上インストールした各ソフトウェアの環境変数を設定する~/.bashrcの例を以下示します。
+> **NOTE:** It is assumed that all the above softwares are installed. Here is an example of setting environment variables in the ~/.bashrc file for the installed software on Linux.
 ```
 export CATALINA_HOME=/opt/apache-tomcat-10.0.27
 
@@ -31,13 +30,13 @@ export PATH=$ANT_HOME/bin:$PATH
 ```
 
 ## Contents
-* **[1. サンプルアプリケーションをTomcatに導入](#1-サンプルアプリケーションをTomcatに導入)**
+* **[1. Deploying the Sample Application to Tomcat](#1-Deploying the Sample Application to Tomcat)**
 
-* **[2. AOT用テンプレートのダウンロード](#2-AOT用テンプレートのダウンロード)**
+* **[2. Downloading AOT Templates](#2-Downloading AOT Templates)**
    
-* **[3. パッケージングとネイティブビルド](#3-パッケージングとネイティブビルド)**
+* **[3. Packaging and Native Build](#3-Packaging and Native Build)**
 
-## 1. サンプルアプリケーションをTomcatに導入  
+## 1. Deploying the Sample Application to Tomcat  
 Spring Frameworkを使用したWebアプリケーションを作成して、warファイルとしてTomcatにデプロイし、正常稼働を確認します。のちにこのアプリケーションをnative image化します。
 
 ```
