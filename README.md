@@ -36,8 +36,10 @@ export PATH=$ANT_HOME/bin:$PATH
    
 * **[3.Packaging and Native Build](#3-Packaging-and-Native-Build)**
 
+* **[4.Run Tomcat native image in Docker container](#4-Run-Tomcat-native-image-in-Docker-container)**
+
 ## 1. Deploying the Sample Application to Tomcat  
-Spring Frameworkを使用したWebアプリケーションを作成して、warファイルとしてTomcatにデプロイし、正常稼働を確認します。のちにこのアプリケーションをnative image化します。
+Create a web application using Spring Framework, deploy it as a WAR file to Tomcat. Later, we will build this application along with Tomcat server into native-imaged.
 
 ```
 $ git clone https://github.com/junsuzu/tomcat-native-jp
@@ -46,7 +48,7 @@ $ mvn clean package
 $ cd target
 ```
 
-targetディレクトリ配下にspringTomcat.warファイルがビルドされることを確認します。
+Verify that the springTomcat.war file is generated in the target directory.
 ```
 [opc@instance target]$ ls -la
 total 4276
@@ -59,7 +61,7 @@ drwxrwxr-x. 3 opc opc      35 Dec 24 06:09 maven-status
 drwxrwxr-x. 4 opc opc      54 Dec 24 06:09 springTomcat
 -rw-rw-r--. 1 opc opc 4378492 Dec 24 06:09 springTomcat.war
 ```
-springTomcat.warファイルをTomcatサーバのwebappsディレクトリにコピーすると、warファイルが自動展開され、「springTomcat」というフォルダが生成されます。Tomcatサーバ上アプリが正常に稼働し、「Hello Spring Framework World」が表示されることを確認してください。
+Copy the springTomcat.war file to the webapps directory of the Tomcat server, and the WAR file will be automatically deployed, and springTomcat folder will be generated. Start the tomcat server, and verify springTomcat application runs normally with display message of "Hello Spring Framework World".
 
 ```
 [opc@jms-instance-2 target]$ cd /opt/apache-tomcat-10.0.27/bin
@@ -76,54 +78,54 @@ Hello Spring Framework World
 [opc@jms-instance-2 bin]$
 ```
 
-## 2. AOT用テンプレートのダウンロード
+## 2. Downloading AOT Templates
 
-Tomcatの公式ドキュメントhttps://tomcat.apache.org/tomcat-11.0-doc/graal.html に従い、Tomcat Stuffed moduleをダウンロードしてください。
+Follow the instructions in the official Tomcat documentation https://tomcat.apache.org/tomcat-11.0-doc/graal.html to download the Tomcat Stuffed module.
 ```
 git clone https://github.com/apache/tomcat.git
 
 ```
-本デモではstuffedフォルダーをtomcat-native-jp配下にコピーし、stuffed配下で後続タスクを行います。
+All of the successor tasks will be conducted under the stuffed folder. 
 ```
 cp -r tomcat/modules/stuffed ../tomcat-native-jp/
 
 ```
-> **NOTE:** 参考のため、全タスク完了後のstuffedフォルダーをcompleteフォルダーに格納しております。  
-> **NOTE:** stuffedの格納場所を環境変数として定義しておきます。以下は~/.bashrcにおける定義例です：
+> **NOTE:** For reference, the stuffed folder after completing all tasks is stored in the complete folder.  
+> **NOTE:** Define the location of 'stuffed' as an environment variable. The following is an example of the definition in ~/.bashrc: 
 ```
 export TOMCAT_STUFFED=/home/opc/project/tomcat-native-jp/stuffed
 
 ```
 
-Tomcatサーバにデプロイ済みのWebアプリケーション「springTomcat」フォルダーをstuffed配下のwebappsディレクトリにコピーします。 
+Copy the deployed web applications of springTomcat from the Tomcat server to the stuffed/webapps directory.
 ```
 cp -r $CATALINA_HOME/webapps/springTomcat $TOMCAT_STUFFED/webapps/
+
 ```
-同様にTomcatサーバのROOTとmanagerもコピーします。
+Similarly copy default web applicatins ROOT and manager.
 ```
 cp -r $CATALINA_HOME/webapps/ROOT $TOMCAT_STUFFED/webapps/
 cp -r $CATALINA_HOME/webapps/manager $TOMCAT_STUFFED/webapps/
 ```
 
-
-spring-framework-tomcat-sample/src/main/java配下のJavaソースをstuffed/webappsの配下にコピーします。  
+Copy the Java source files under spring-framework-tomcat-sample/src/main/java to the stuffed/webapps directory.  
 
 ```
 cd spring-framework-tomcat-sample
 cp -r src/main/java/* $TOMCAT_STUFFED/webapps/springTomcat/WEB-INF/classes/
 ```
 
-Tomcatサーバのconfディレクトリ配下のすべてをstuffed/confディレクトリにコピーします。  
+Copy all files under the Tomcat server's conf directory to the stuffed/conf directory. 
 ```
 cp -r $CATALINA_HOME/conf/* $TOMCAT_STUFFED/conf/
 ```
 
-## 3. パッケージングとネイティブビルド
-stuffed配下のpom.xmlを修正します。  
+## 3. Packaging and Native Build
+Modify the pom.xml file under the stuffed directory.
 
-tomcat.versionを実際に使用するTomcatのバージョンに変更します。  
-また、springframeworkのバージョンを追加します。
-> **NOTE:** 実際のWebアプリケーションに合わせて、必要に応じてライブラリやプラグインを追加してください。  
+Change the tomcat.version property to the actual version of Tomcat you are using.
+Add the spring-framework.version property.
+> **NOTE:** Add libraries and plugins as necessary to suit your actual web application.  
 
 ```
 <properties>
@@ -136,7 +138,7 @@ tomcat.versionを実際に使用するTomcatのバージョンに変更します
 </properties>
 ```
 
-springframework用のdependencyを追加します。
+Add dependencies for the Spring Framework in the dependencies section.
 ```
 <dependencies>
         <!-- add for springframework -->
@@ -155,12 +157,12 @@ springframework用のdependencyを追加します。
 </dependencies>
 ```
 
-mavenでビルドをします。
+Build with maven.
 ```
 cd stuffed
 mvn package
 ```
-mavenによるビルドが完了後、Antで再度ビルドします。webapp.name変数には実際配布済みのWebアプリケーション名を指定します。
+Build with Ant. Change the "webapp.name" variable to actual web application names.
 
 ```
 ant -Dwebapp.name=springTomcat -f webapp-jspc.ant.xml
@@ -168,25 +170,25 @@ ant -Dwebapp.name=ROOT -f webapp-jspc.ant.xml
 ant -Dwebapp.name=manager -f webapp-jspc.ant.xml
 ```
 
-再度mavenでビルドをします。
+Build again with Maven.
 ```
 mvn package
 ```
 
-Tomcatを含むコードを生成するために、以下のコマンドを実行します。
+Run following java command to generate Tomcat embedded code.
 ```
 $JAVA_HOME/bin/java\
         -Dcatalina.base=. -Djava.util.logging.config.file=conf/logging.properties\
         -jar target/tomcat-stuffed-1.0.jar --catalina -generateCode src/main/java
 ```
-> **NOTE:** 実行時にJuli関連のTomcatロギング用ライブラリが見つからないというエラーメッセージが出ますが、検証には特に支障ありません。エラーメッセージを回避したい場合、confディレクトリ配下のlogging.propertiesを編集し、Juli関連のライブラリ記述をコメントアウトしてください。
+> **NOTE:** At runtime, an error message will appear stating that the Tomcat logging library related to Juli cannot be found, but this does not matter with for the purpose of this demo. If you want to avoid error messages, edit logging.properties under the conf directory and comment out the Juli-related library description.
 
-Ctrl+Cで上記コマンドで起動したプロセスを終了し、再度mavenでビルドをします。
+Use Ctrl+C to stop the process and build again with Maven.
 ```
 mvn package
 ```
 
-Native image実行時、Reflectionを解決するため、以下のagentツールを使用して、メタデータを生成します。
+Generate metadata for native image by using the agent tool to resolve Java Reflection.
 ```
 $JAVA_HOME/bin/java\
         -agentlib:native-image-agent=config-output-dir=$TOMCAT_STUFFED/target/\
@@ -194,7 +196,7 @@ $JAVA_HOME/bin/java\
         -Dcatalina.base=. -Djava.util.logging.config.file=conf/logging.properties\
         -jar target/tomcat-stuffed-1.0.jar --catalina -useGeneratedCode
 ```
-native image用メタデータを生成するため、Webアプリケーションに含まれるすべてのパターンを実行する必要があります。今回使用するWebアプリケーションはコンテキストルートおよびサーブレットが処理するためのURLパターン「greeting」がありますので、別ターミナルを立ち上げ、この２つのパターンをそれぞれ実行します。
+All patterns included in the web application must be executed to generate metadata for the native image. The web application we are using this time has a context root and a URL pattern of "greeting" for the servlet to process, so we will launch a separate terminal and execute each of these two patterns.
 ```
 [opc@jms-instance-2 /]$ curl http://localhost:8080/springTomcat/
 <html>
@@ -206,9 +208,9 @@ native image用メタデータを生成するため、Webアプリケーショ�
 Hello Spring Framework World
 ```
 
-実行できましたら、Ctrl+CでJavaプロセスを停止します。
+Use Ctrl+C to stop the above java process.
+Use GraalVM native build tool to build native image.
 
-GraalVMのネイティブビルドツールを使用してnative imageをビルドします。
 ```
 native-image --no-server\
         --allow-incomplete-classpath --enable-https\
@@ -221,13 +223,68 @@ native-image --no-server\
         -H:JNIConfigurationFiles=$TOMCAT_STUFFED/tomcat-jni.json\
         -jar $TOMCAT_STUFFED/target/tomcat-stuffed-1.0.jar
 ```
-stuffedディレクトリ配下にネイティブ実行ファイル「tomcat-stuffed-1.0」が生成されていることを確認してください。  
-native imageを起動します。
+Confirm that the native executable "tomcat-stuffed-1.0" is generated under the stuffed directory.
+Start the native image.
 ```
 ./tomcat-stuffed-1.0 -Dcatalina.base=. -Djava.util.logging.config.file=conf/logging.properties --catalina -useGeneratedCode
 ```
-別ターミナルからWebアプリケーションが正常稼働することを確認してください。
+Use another terminal to verify that the native image is working.
 ```
 [opc@jms-instance-2 /]$ curl http://localhost:8080/springTomcat/greeting
 Hello Spring Framework World
+```
+
+## 4.Run Tomcat native image in Docker container
+
+Modify the DockerfileGraal under the stuffed directory and change the base OS image from busy:box to oraclelinux:8-slim.
+
+```
+# FROM busybox:glibc
+FROM oraclelinux:8-slim
+```
+
+Build Dokcer image.
+```
+docker build -t apache/tomcat-stuffed-native:1.0 -f ./DockerfileGraal .
+```
+Start the Docker container and check that the Tomcat server and springframework sample are working properly.
+
+```
+docker run --name tomcat-native -p 8080:8080 apache/tomcat-stuffed-native:1.0
+```
+```
+[opc@jms-instance-2 tomcat-native-jp]$ curl http://localhost:8080/springTomcat/greeting
+Hello Spring Framework World
+```
+
+Compare the application execution time when running the native image of the Tomcat server in a container with the execution time when running a conventional Tomcat server. In this demo environment, we were able to confirm that the native image runs twice as fast as traditinal way.
+
+*native image
+```
+[opc@jms-instance-2 tomcat-native-jp]$ docker start tomcat-native
+tomcat-native
+[opc@jms-instance-2 tomcat-native-jp]$ time curl http://localhost:8080/springTomcat/greeting
+Hello Spring Framework World
+
+real    0m0.012s
+user    0m0.003s
+sys     0m0.005s
+```
+
+*Tomcat server
+```
+[opc@jms-instance-2 tomcat-native-jp]$ startup.sh
+Using CATALINA_BASE:   /opt/apache-tomcat-10.0.27
+Using CATALINA_HOME:   /opt/apache-tomcat-10.0.27
+Using CATALINA_TMPDIR: /opt/apache-tomcat-10.0.27/temp
+Using JRE_HOME:        /usr/lib64/graalvm/graalvm-java21
+Using CLASSPATH:       /opt/apache-tomcat-10.0.27/bin/bootstrap.jar:/opt/apache-tomcat-10.0.27/bin/tomcat-juli.jar
+Using CATALINA_OPTS:   
+Tomcat started.
+[opc@jms-instance-2 tomcat-native-jp]$ time curl http://localhost:8080/springTomcat/greeting
+Hello Spring Framework World
+
+real    0m0.273s
+user    0m0.004s
+sys     0m0.004s
 ```
