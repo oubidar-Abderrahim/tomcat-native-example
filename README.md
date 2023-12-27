@@ -17,6 +17,7 @@
 > **NOTE:** It is assumed that all the above softwares are installed. Here is an example of setting environment variables in the ~/.bashrc file for the installed software on Linux.
 ```
 export CATALINA_HOME=/opt/apache-tomcat-10.0.27
+export PATH=$CATALINA_HOME/bin:$PATH
 
 export JAVA_HOME=/usr/lib64/graalvm/graalvm-java21
 export PATH=$JAVA_HOME/bin:$PATH
@@ -234,7 +235,7 @@ Use another terminal to verify that the native image is working.
 Hello Spring Framework World
 ```
 
-## 4.Run Tomcat native image in Docker container
+## 4. Run Tomcat native image in Docker container
 
 Modify the DockerfileGraal under the stuffed directory and change the base OS image from busy:box to oraclelinux:8-slim.
 
