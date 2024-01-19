@@ -40,7 +40,7 @@ export PATH=$ANT_HOME/bin:$PATH
 * **[4.Run Tomcat native image in Docker container](#4-Run-Tomcat-native-image-in-Docker-container)**
 
 ## 1. Deploying the Sample Application to Tomcat  
-Create a web application using Spring Framework, deploy it as a WAR file to Tomcat. Later, we will build this application along with Tomcat server into native-imaged.
+Create a web application using Spring Framework, deploy it as a WAR file to Tomcat. Later, we will build this application along with Tomcat server into native-image.
 
 ```
 $ git clone https://github.com/junsuzu/tomcat-native-jp
