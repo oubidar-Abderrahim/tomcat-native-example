@@ -258,7 +258,7 @@ docker run --name tomcat-native -p 8080:8080 apache/tomcat-stuffed-native:1.0
 Hello Spring Framework World
 ```
 
-Compare the application execution time when running the native image of the Tomcat server in a container with the execution time when running a conventional Tomcat server. In this demo environment, we were able to confirm that the native image runs twice as fast as traditinal way.
+Compare the application execution time when running the native image of the Tomcat server in a container with the execution time when running a conventional Tomcat server. In this demo environment, it is confirmed that the native image runs 20 times faster than traditional Tomcat server.
 
 *native image
 ```
