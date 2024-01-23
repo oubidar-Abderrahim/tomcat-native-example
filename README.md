@@ -124,6 +124,10 @@ cp -r $CATALINA_HOME/conf/* $TOMCAT_STUFFED/conf/
 ## 3. Packaging and Native Build
 Modify the pom.xml file under the stuffed directory.
 
+```
+cd $TOMCAT_STUFFED
+```
+
 Change the tomcat.version property to the actual version of Tomcat you are using.
 Add the spring-framework.version property.
 > **NOTE:** Add libraries and plugins as necessary to suit your actual web application.  
@@ -160,7 +164,6 @@ Add dependencies for the Spring Framework in the dependencies section.
 
 Build with maven.
 ```
-cd stuffed
 mvn package
 ```
 Build with Ant. Change the "webapp.name" variable to actual web application names.
@@ -213,15 +216,10 @@ Use Ctrl+C to stop the above java process.
 Use GraalVM native build tool to build native image.
 
 ```
-native-image --no-server\
-        --allow-incomplete-classpath --enable-https\
+native-image \
         --initialize-at-build-time=org.eclipse.jdt,org.apache.el.parser.SimpleNode,jakarta.servlet.jsp.JspFactory,org.apache.jasper.servlet.JasperInitializer,org.apache.jasper.runtime.JspFactoryImpl\
-        -H:+JNI -H:+ReportUnsupportedElementsAtRuntime\
         -H:+ReportExceptionStackTraces -H:EnableURLProtocols=http,https,jar,jrt\
         -H:ConfigurationFileDirectories=$TOMCAT_STUFFED/target/\
-        -H:ReflectionConfigurationFiles=$TOMCAT_STUFFED/tomcat-reflection.json\
-        -H:ResourceConfigurationFiles=$TOMCAT_STUFFED/tomcat-resource.json\
-        -H:JNIConfigurationFiles=$TOMCAT_STUFFED/tomcat-jni.json\
         -jar $TOMCAT_STUFFED/target/tomcat-stuffed-1.0.jar
 ```
 Confirm that the native executable "tomcat-stuffed-1.0" is generated under the stuffed directory.
